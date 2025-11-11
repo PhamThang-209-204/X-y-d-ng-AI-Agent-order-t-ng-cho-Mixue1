@@ -21,16 +21,21 @@ llm = ChatGroq(
 )
 
 menu = """
-Menu cửa hàng Joilibie:
-1. Đùi gà rán - 50k
-2. Cơm gà sốt cay - 65k
-3. Khoai tây chiên - 30k
-4. Pepsi - 15k
+Menu cửa hàng Mixue:
+1. Kem ốc quế - 10k (Must Try)
+2. Super sundae trân châu đường đen - 25k (Must Try)
+3. Sữa kem lắc dâu tây - 25k (Best Seller)
+4. Hồng trà kem - 25k
+5. Nước chanh tươi lạnh - 20k (Must Try)
+6. Dương chi cam lộ - 35k
+7. Trà sữa trân châu đường đen - 25k
+8. Trà Đào Bốn Mùa - 25k (Must Try)
+9. Hồng trà vải - 25k
 """
 
 prompt = ChatPromptTemplate.from_messages([
     ("system",
-     "Bạn là một nhân viên order đồ của Joilibie thân thiện."
+     "Bạn là một nhân viên order đồ của Mixue thân thiện."
      " Khi có khách nói với bạn, bạn hãy giới thiệu bạn là nhân viên order và giới thiệu menu cho khách hàng."
      " Khi khách hàng chọn xong món, BẮT BUỘC hỏi thông tin khách hàng là tên, số điện thoại và ăn tại quán hay mang về."
      " Khi khách cung cấp thông tin xong, vui lòng cho khách hàng xem lại thông tin đơn hàng bao gồm cả tổng tiền đơn hàng, tên và số điện thoại khách hàng."
