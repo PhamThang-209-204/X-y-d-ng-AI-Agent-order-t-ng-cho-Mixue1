@@ -6,21 +6,34 @@ from langchain.memory import ConversationBufferMemory
 from langchain.agents import AgentExecutor, create_tool_calling_agent
 from tools import save_order_tool
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 import os
 import uuid
 import mysql.connector
+from dotenv import load_dotenv   # ✅ Thêm
 
+# ✅ Load các biến môi trường từ file .env
+load_dotenv()
+
+# ---- Khởi tạo FastAPI ----
 app = FastAPI()
 
-origins = ["http://127.0.0.1:5500"]
+# ---- Cấu hình CORS ----
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"],  # Cho phép mọi domain (nếu bạn muốn chỉ localhost:3000 thì đổi ở đây)
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
+# ---- Xử lý preflight request (OPTIONS /chat) ----
+@app.options("/chat")
+async def options_chat():
+    return JSONResponse(status_code=200, content={"message": "OK"})
+
+
+# ---- Kết nối Database ----
 def get_db():
     return mysql.connector.connect(
         host=os.getenv("DB_HOST", "localhost"),
@@ -31,12 +44,16 @@ def get_db():
         collation="utf8mb4_unicode_ci"
     )
 
-API_KEY = os.getenv("API_KEY")
-model = os.getenv("model")
-llm = ChatGroq(api_key=API_KEY, model=model)
 
+# ---- Khởi tạo LLM ----
+API_KEY = os.getenv("API_KEY")
+MODEL = os.getenv("model")
+
+llm = ChatGroq(api_key=API_KEY, model=MODEL)
+
+# ---- Menu Mixue ----
 menu = """
-Menu cửa hàng Mixue - Món nổi bật:
+🍧 Menu Mixue:
 1. Kem ốc quế - 10k (Must Try)
 2. Super sundae trân châu đường đen - 25k (Must Try)
 3. Sữa kem lắc dâu tây - 25k (Best Seller)
@@ -48,23 +65,16 @@ Menu cửa hàng Mixue - Món nổi bật:
 9. Hồng trà vải - 25k
 """
 
-
+# ---- Prompt chính ----
 prompt = ChatPromptTemplate.from_messages([
     ("system",
      "Bạn là nhân viên order Mixue thân thiện."
-     " Giới thiệu menu cho khách ngay khi nói chuyện với họ."
-     " Khi khách chọn món xong, nếu chưa cung cấp tên, số điện thoại hoặc loại đơn hàng (Ăn tại quán/Mang về) thì BẮT BUỘC hỏi đầy đủ."
-     " Hỏi đầy đủ thông tin khách hàng thì mới được hỏi xác nhận đơn hàng."
-     " Hiển thị lại thông tin đơn hàng: tên, số điện thoại, món đã chọn."
+     " Giới thiệu menu cho khách ngay khi bắt đầu trò chuyện."
+     " Khi khách chọn món, nếu chưa cung cấp tên, số điện thoại hoặc loại đơn hàng (Ăn tại quán/Mang về) thì BẮT BUỘC hỏi đủ."
+     " Sau khi có đủ thông tin, hãy hiển thị lại đơn hàng gồm: tên, số điện thoại, món đã chọn."
      " Hỏi khách: 'Thông tin trên đã chính xác chưa?'"
-     """- Luôn hỏi và thu đủ thông tin:  
-     - Tên khách hàng  
-     - Số điện thoại  
-     - Địa chỉ giao hàng  
-   - Nếu thiếu thông tin → không tạo đơn."""
-     " ✅ Nếu khách xác nhận đúng, gọi tool save_order_tool để lưu vào DB và thông báo khách chờ."
-     " ❌ Nếu khách muốn thay đổi, không lưu và hỏi lại thông tin."
-     " Khi lưu xong đơn hàng bắt buộc phải cảm ơn khách hàng."
+     " ✅ Nếu khách xác nhận đúng, gọi tool save_order_tool để lưu đơn hàng vào DB và cảm ơn khách."
+     " ❌ Nếu khách muốn thay đổi, hỏi lại thông tin cần sửa."
      f"\nMenu hiện tại:\n{menu}"
     ),
     MessagesPlaceholder(variable_name="chat_history"),
@@ -72,9 +82,10 @@ prompt = ChatPromptTemplate.from_messages([
     MessagesPlaceholder(variable_name="agent_scratchpad")
 ])
 
-
+# ---- Bộ nhớ hội thoại ----
 memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
 
+# ---- Tạo agent ----
 agent = create_tool_calling_agent(
     llm=llm,
     tools=[save_order_tool],
@@ -89,11 +100,13 @@ agent_executor = AgentExecutor(
 )
 
 
+# ---- Model input ----
 class ChatInput(BaseModel):
     message: str
-    session_uuid: str | None = None   
+    session_uuid: str | None = None
 
 
+# ---- Tạo session ----
 def create_session():
     session_uuid = str(uuid.uuid4())
     conn = get_db()
@@ -104,6 +117,8 @@ def create_session():
     conn.close()
     return session_uuid
 
+
+# ---- Lưu message ----
 def save_message(session_uuid: str, role: str, content: str):
     conn = get_db()
     cursor = conn.cursor()
@@ -115,30 +130,29 @@ def save_message(session_uuid: str, role: str, content: str):
     cursor.close()
     conn.close()
 
+
+# ---- Route chính /chat ----
 @app.post("/chat")
 def chat(input_data: ChatInput):
     session_uuid = input_data.session_uuid or create_session()
 
     save_message(session_uuid, "user", input_data.message)
 
-    # Gọi LLM
     result = agent_executor.invoke({"input": input_data.message})
     reply = result["output"]
 
     save_message(session_uuid, "assistant", reply)
 
-    # ---- Kiểm tra nếu đơn hàng đã được lưu -> reset session và memory ----
-    new_session_uuid = session_uuid
-    if any(kw in reply.lower() for kw in ["đơn hàng đã được lưu", "đơn hàng của bạn đã được lưu", "cảm ơn"]):
-        # tạo session mới
-        new_session_uuid = create_session()
-
-        # reset bộ nhớ hội thoại LangChain
-        memory.clear()
-
-        print("✅ Đơn hàng thành công — tạo session mới và reset memory")
+    new_session_uuid = None
+    try:
+        if "actions" in result and any(
+            act.tool == "save_order_tool" for act in result["actions"]
+        ):
+            new_session_uuid = create_session()
+    except Exception as e:
+        print("Không tìm thấy tool call:", e)
 
     return {
         "response": reply,
-        "session_uuid": new_session_uuid
+        "session_uuid": new_session_uuid or session_uuid
     }
