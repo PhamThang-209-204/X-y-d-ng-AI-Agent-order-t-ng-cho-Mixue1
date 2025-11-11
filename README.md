@@ -232,12 +232,6 @@ Chi tiết: Xem `/docs` hoặc file `main.py`.
 - [LangChain Setup](docs/LANGCHAIN_SETUP.md) - Cấu hình agent và tools.
 
 ## 📸 Screenshots
-![Chat Interface](screenshots/chat-demo.png)  
-*(Demo frontend chat với menu sidebar)*
-
-![Order Confirmation](screenshots/order-confirm.png)  
-*(Xác nhận đơn hàng trước khi lưu)*
-
 ## 🤝 Đóng Góp
 Contributions, issues và feature requests đều được chào đón!
 
