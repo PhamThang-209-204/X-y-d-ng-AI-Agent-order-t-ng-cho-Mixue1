@@ -1,10 +1,16 @@
+<div align="center">
+
 # Mixue Chat Assistant
+
 Nền Tảng Trợ Lý Đặt Hàng Thông Minh Cho Mixue
 
 ![Mixue Logo](https://z-cdn-media.chatglm.cn/files/02125486-3cea-4a7e-a46a-c625a4738ea0_pasted_image_1760946317368.png?auth_key=1792482330-9103a701e84d4413b5b1d2c56f9883e6-0-ac321e285660450ea2c4a14880a45cae)
 
 Sử dụng AI để giới thiệu menu, xử lý đơn hàng và lưu thông tin khách hàng một cách tự động  
+
 🚀 Demo • ✨ Tính Năng • 📦 Cài Đặt • 📖 Tài Liệu • 🤝 Đóng Góp
+
+</div>
 
 ## 📋 Mục Lục
 
@@ -17,7 +23,6 @@ Sử dụng AI để giới thiệu menu, xử lý đơn hàng và lưu thông t
 - [API Documentation](#-api-documentation)
 - [Tài Liệu](#-tài-liệu)
 - [Screenshots](#-screenshots)
-- [Roadmap](#-roadmap)
 - [Đóng Góp](#️-đóng-góp)
 - [License](#-license)
 
@@ -232,13 +237,6 @@ Chi tiết: Xem `/docs` hoặc file `main.py`.
 
 ![Order Confirmation](screenshots/order-confirm.png)  
 *(Xác nhận đơn hàng trước khi lưu)*
-
-## 🛣️ Roadmap
-- **v1.1**: Tích hợp thanh toán online (VNPay/Momo).
-- **v1.2**: Gợi ý món dựa trên lịch sử đơn hàng (ML recommendation).
-- **v1.3**: Dashboard admin để xem đơn hàng và thống kê.
-- **v2.0**: Hỗ trợ voice chat (Web Speech API).
-- **Deploy**: Docker + AWS/GCP cho production.
 
 ## 🤝 Đóng Góp
 Contributions, issues và feature requests đều được chào đón!
