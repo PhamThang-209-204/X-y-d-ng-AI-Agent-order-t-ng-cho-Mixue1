@@ -37,7 +37,6 @@ Mixue Chat Assistant là nền tảng chatbot thông minh được xây dựng c
 
 🌟 **Điểm Đặc Biệt**
 
-- ✅ **100% Tự Động** - Không cần nhập tay, chỉ cần chat.
 - ✅ **AI Thông Minh** - Sử dụng Groq LLM (Llama 3) cho phản hồi nhanh chóng.
 - ✅ **Session Management** - Duy trì lịch sử chat qua UUID.
 - ✅ **Tiếng Việt** - Giao diện và hội thoại hoàn toàn tiếng Việt.
@@ -53,7 +52,6 @@ Mixue Chat Assistant là nền tảng chatbot thông minh được xây dựng c
 📋 **2. Xử Lý Đơn Hàng**
 
 - Chọn món từ menu (click hoặc chat).
-- Thêm/xóa món vào giỏ hàng tạm thời.
 - Tính tổng tiền và hiển thị đơn hàng.
 
 📝 **3. Thu Thập Thông Tin Khách Hàng**
